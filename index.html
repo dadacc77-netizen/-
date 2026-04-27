@@ -8,53 +8,50 @@
 
 <h2>📊 回饋分析系統</h2>
 
-<button onclick="analyze()">🤖 分析回饋</button>
+<!-- 🔹 按鈕1：查看資料 -->
+<button onclick="loadData()">📥 查看回饋資料</button>
+
+<!-- 🔹 按鈕2：執行AI分析 -->
+<button onclick="runAI()">🤖 執行AI分析</button>
 
 <pre id="result"></pre>
 
 <script>
-async function analyze() {
+const GAS_URL = "https://script.google.com/macros/s/AKfycbw0GhezElgOAQdO86cCI_MDBiFly84VKV1cJLGwvUXUdIx27gOzQVvUIF1f5fpsiD8gaw/exec";
+
+// 📥 讀資料（GET）
+async function loadData() {
   const resultEl = document.getElementById("result");
-  resultEl.innerText = "⏳ 分析中...";
+  resultEl.innerText = "⏳ 載入資料中...";
 
   try {
-    // 1️⃣ 抓 GAS 資料
-    const res = await fetch("https://script.google.com/macros/s/AKfycbw0GhezElgOAQdO86cCI_MDBiFly84VKV1cJLGwvUXUdIx27gOzQVvUIF1f5fpsiD8gaw/exec");
+    const res = await fetch(GAS_URL);
     const data = await res.json();
 
-    // 2️⃣ 組 Prompt
-    const prompt = `
-以下是使用者回饋資料（JSON）：
-${JSON.stringify(data)}
+    resultEl.innerText = JSON.stringify(data, null, 2);
 
-請幫我做：
-1. 問題分類（依內容分組）
-2. 找出最常見問題
-3. 判斷是否有系統性錯誤
-4. 給出具體優化建議（可執行）
+  } catch (err) {
+    resultEl.innerText = "❌ 錯誤：" + err;
+  }
+}
 
-請用條列式輸出
-`;
+// 🤖 執行AI分析（POST）
+async function runAI() {
+  const resultEl = document.getElementById("result");
+  resultEl.innerText = "⏳ AI分析中...";
 
-    // 3️⃣ 呼叫 GPT
-    const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
+  try {
+    const res = await fetch(GAS_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer 👉你的API_KEY"
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        messages: [
-          { role: "user", content: prompt }
-        ]
-      })
+      body: JSON.stringify({ run: true })
     });
 
-    const gptData = await gptRes.json();
+    const text = await res.text();
 
-    // 4️⃣ 顯示結果
-    resultEl.innerText = gptData.choices[0].message.content;
+    resultEl.innerText = text;
 
   } catch (err) {
     resultEl.innerText = "❌ 錯誤：" + err;
