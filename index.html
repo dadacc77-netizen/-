@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>回饋分析系統</title>
+</head>
+<body>
+
+<h2>📊 回饋分析系統</h2>
+
+<button onclick="analyze()">🤖 分析回饋</button>
+
+<pre id="result"></pre>
+
+<script>
+async function analyze() {
+  const resultEl = document.getElementById("result");
+  resultEl.innerText = "⏳ 分析中...";
+
+  try {
+    // 1️⃣ 抓 GAS 資料
+    const res = await fetch("👉換成你的GAS網址");
+    const data = await res.json();
+
+    // 2️⃣ 組 Prompt
+    const prompt = `
+以下是使用者回饋資料（JSON）：
+${JSON.stringify(data)}
+
+請幫我做：
+1. 問題分類（依內容分組）
+2. 找出最常見問題
+3. 判斷是否有系統性錯誤
+4. 給出具體優化建議（可執行）
+
+請用條列式輸出
+`;
+
+    // 3️⃣ 呼叫 GPT
+    const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer 👉你的API_KEY"
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        messages: [
+          { role: "user", content: prompt }
+        ]
+      })
+    });
+
+    const gptData = await gptRes.json();
+
+    // 4️⃣ 顯示結果
+    resultEl.innerText = gptData.choices[0].message.content;
+
+  } catch (err) {
+    resultEl.innerText = "❌ 錯誤：" + err;
+  }
+}
+</script>
+
+</body>
+</html>
