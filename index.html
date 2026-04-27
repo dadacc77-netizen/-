@@ -8,54 +8,38 @@
 
 <h2>📊 回饋分析系統</h2>
 
-<!-- 🔹 按鈕1：查看資料 -->
-<button onclick="loadData()">📥 查看回饋資料</button>
-
-<!-- 🔹 按鈕2：執行AI分析 -->
+<button onclick="loadData()">📥 查看資料</button>
 <button onclick="runAI()">🤖 執行AI分析</button>
 
 <pre id="result"></pre>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbw0GhezElgOAQdO86cCI_MDBiFly84VKV1cJLGwvUXUdIx27gOzQVvUIF1f5fpsiD8gaw/exec";
+const GAS_URL = "👉換成你的GAS網址";
 
-// 📥 讀資料（GET）
 async function loadData() {
-  const resultEl = document.getElementById("result");
-  resultEl.innerText = "⏳ 載入資料中...";
+  const el = document.getElementById("result");
+  el.innerText = "⏳ 載入中...";
 
-  try {
-    const res = await fetch(GAS_URL);
-    const data = await res.json();
+  const res = await fetch(GAS_URL);
+  const data = await res.json();
 
-    resultEl.innerText = JSON.stringify(data, null, 2);
-
-  } catch (err) {
-    resultEl.innerText = "❌ 錯誤：" + err;
-  }
+  el.innerText = JSON.stringify(data, null, 2);
 }
 
-// 🤖 執行AI分析（POST）
 async function runAI() {
-  const resultEl = document.getElementById("result");
-  resultEl.innerText = "⏳ AI分析中...";
+  const el = document.getElementById("result");
+  el.innerText = "⏳ 分析中...";
 
-  try {
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ run: true })
-    });
+  const res = await fetch(GAS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ data: "run" })
+  });
 
-    const text = await res.text();
-
-    resultEl.innerText = text;
-
-  } catch (err) {
-    resultEl.innerText = "❌ 錯誤：" + err;
-  }
+  const text = await res.text();
+  el.innerText = text;
 }
 </script>
 
